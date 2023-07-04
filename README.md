@@ -4,3 +4,4 @@
 
 ### **Scraper**
 #### Web scraping to gather data.  I chose song lyrics with the hope to compare song lyrics between genres or artists. 
+
