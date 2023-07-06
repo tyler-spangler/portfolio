@@ -25,16 +25,14 @@ def build_url(n_games: int, games_df: pd.DataFrame) -> str:
     """
     url_end = ""
     games_appended = 0
-    for _, row in games_df.iterrows():
+    for game_id in games_df["game_id"][:n_games].tolist():
         if games_appended == 0:
-            url_end += f"{row['game_id']}"
-
-        url_end += f", {row['game_id']}"
-
-        if games_appended == n_games:
-            return f"https://api.geekdo.com/xmlapi/boardgame/{url_end}"
-
+            url_end += f"{game_id}"
+        else:
+            url_end += f", {game_id}"
         games_appended += 1
+
+    return f"https://api.geekdo.com/xmlapi/boardgame/{url_end}"
 
 
 def execute_api_call(api_url: str) -> dict:
@@ -48,7 +46,10 @@ def execute_api_call(api_url: str) -> dict:
     dict
         Dictionary of the xml response
     """
-    response = requests.get(api_url, timeout=5)
-    if response.status_code == 200:
+
+    try:
+        response = requests.get(api_url, timeout=5)
         return xmltodict.parse(response.content)
-    return response.status_code
+    except requests.exceptions.RequestException as req_error:
+        print(req_error)
+        return None

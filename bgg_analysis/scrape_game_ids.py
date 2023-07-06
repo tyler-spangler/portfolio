@@ -84,18 +84,14 @@ def save_game_ids(game_df: pd.DataFrame) -> None:
 
 
 # loop through and get first 5 pages (top 500 games)
-
+scrape_url_list = ["https://boardgamegeek.com/browse/boardgame"] + [
+    f"https://boardgamegeek.com/browse/boardgame/page/{i+1}" for i in range(1, 5)
+]
 temp_list = []
-for i in range(0, 5):
-    if i == 0:
-        temp_url = "https://boardgamegeek.com/browse/boardgame"
-    else:
-        temp_url = f"https://boardgamegeek.com/browse/boardgame/page/{i+1}"
-    temp_list.append(get_game_urls(url=temp_url))
-    i += 1
+for temp_url in scrape_url_list:
+    temp_list.append(get_game_urls(temp_url))
 
 game_url_list = [game_url for set_list in temp_list for game_url in set_list]
 
 game_id_df = get_title_id(game_urls=game_url_list)
-
 save_game_ids(game_id_df)
