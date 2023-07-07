@@ -26,13 +26,13 @@ def build_url(n_games: int, games_df: pd.DataFrame) -> str:
     url_end = ""
     games_appended = 0
     for _, row in games_df.iterrows():
-        if games_appended == 0:
-            url_end += f"{row['game_id']}"
-
-        url_end += f", {row['game_id']}"
-
         if games_appended == n_games:
             return f"https://api.geekdo.com/xmlapi/boardgame/{url_end}"
+
+        if games_appended == 0:
+            url_end += f"{row['game_id']}"
+        else:
+            url_end += f", {row['game_id']}"
 
         games_appended += 1
 
