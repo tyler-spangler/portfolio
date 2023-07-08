@@ -2,6 +2,7 @@
 Module contains functions for creating and updating database
 """
 import sqlite3 as sql
+import yaml
 import pandas as pd
 
 
@@ -72,3 +73,20 @@ def write_to_database(
     data_to_write.to_sql(
         table_name, database_connection, if_exists="append", index=False
     )
+
+
+def read_yaml(filepath: str) -> dict:
+    """
+    Reads the configuration file and returns the dictionary
+    Parameters
+    -----------
+    filepath: str
+        Filepath to the configuration file
+    Returns
+    --------
+    dict:
+        Dictionary containing the filepath to the database
+    """
+    with open(filepath, "r", encoding="utf-8") as file:
+        config = yaml.safe_load(file)
+    return config

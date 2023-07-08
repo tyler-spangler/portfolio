@@ -1,7 +1,7 @@
 """
 Module will build and execute the API call
 """
-import sqlite3 as sql
+
 import pandas as pd
 import requests
 import xmltodict
@@ -49,27 +49,14 @@ def execute_api_call(api_url: str) -> dict:
     """
 
     try:
-        response = requests.get(api_url, timeout=10)
+        response = requests.get(api_url, timeout=120)
         return xmltodict.parse(response.content)
     except requests.exceptions.RequestException as req_error:
         print(req_error)
         return None
 
 
-game_dictionary = {
-    "game_id": [],
-    "name": [],
-    "min_players": [],
-    "max_players": [],
-    "min_playtime": [],
-    "max_playtime": [],
-    "age": [],
-    "description": [],
-    "year_published": [],
-}
-
-
-def parse_boardgame_data(boardgame_dictionary: dict, xml_dict: dict) -> dict:
+def parse_boardgame_data(xml_dict: dict) -> dict:
     """
     Parse the returned xml into the board game table to load into the database
     Parameters
@@ -83,6 +70,17 @@ def parse_boardgame_data(boardgame_dictionary: dict, xml_dict: dict) -> dict:
     dict
         The boardgame dictionary populated from the api data
     """
+    boardgame_dictionary = {
+        "game_id": [],
+        "name": [],
+        "min_players": [],
+        "max_players": [],
+        "min_playtime": [],
+        "max_playtime": [],
+        "age": [],
+        "description": [],
+        "year_published": [],
+    }
     for game in xml_dict["boardgames"]["boardgame"]:
         # find the values and them to the dictionary
         boardgame_dictionary["game_id"].append(game["@objectid"])
@@ -102,6 +100,7 @@ def parse_boardgame_data(boardgame_dictionary: dict, xml_dict: dict) -> dict:
     return boardgame_dictionary
 
 
-# api_url = build_url(10, game_df)
+# api_url = build_url(500, game_df)
 # val = execute_api_call(api_url=api_url)
-# x = parse_boardgame_data(game_dictionary, val)
+# # x = parse_boardgame_data(game_dictionary, val)
+# print(len(x["year_published"]))

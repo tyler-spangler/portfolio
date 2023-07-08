@@ -1,0 +1,2 @@
+bgg_database:
+  url: 'bgg_analysis/data/game_database.db'
