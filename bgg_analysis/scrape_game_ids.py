@@ -1,10 +1,7 @@
 """
 Scrapes bgg to get game ids. Starts by only scraping top 200 games
 """
-import os
-from pathlib import Path
 import re
-import sys
 from typing import Union
 import requests
 from bs4 import BeautifulSoup
@@ -53,36 +50,6 @@ def get_title_id(game_urls: Union[set, list]) -> pd.DataFrame:
     return pd.DataFrame({"game_title": game_title, "game_id": game_id})
 
 
-def project_path():
-    """
-    Gets the full path of the project
-
-    """
-    if "bgg_analysis" in sys.argv[0]:
-        return Path("bgg_analysis").resolve()
-
-    return Path("portfolio")
-
-
-def save_game_ids(game_df: pd.DataFrame) -> None:
-    """
-    Saves game ids and names to csv file
-    Parameters
-    -----------
-    df: pd.DataFrame
-    Returns
-    -------
-    None
-    """
-    filepath = project_path()
-    if "game_title_id.csv" in os.listdir(filepath):
-        temp_df = pd.read_csv(f"{filepath}/game_id_df.csv")
-        game_df = pd.concat([game_df, temp_df], axis=0)
-        game_df.to_csv(f"{filepath}/game_id_df.csv", index=False)
-    else:
-        game_df.to_csv(f"{filepath}/game_title_id.csv", index=False)
-
-
 # loop through and get first 5 pages (top 500 games)
 scrape_url_list = ["https://boardgamegeek.com/browse/boardgame"] + [
     f"https://boardgamegeek.com/browse/boardgame/page/{i+1}" for i in range(1, 5)
@@ -92,6 +59,6 @@ for temp_url in scrape_url_list:
     temp_list.append(get_game_urls(temp_url))
 
 game_url_list = [game_url for set_list in temp_list for game_url in set_list]
-
 game_id_df = get_title_id(game_urls=game_url_list)
-save_game_ids(game_id_df)
+
+game_id_df.to_csv("game_title_id.csv")
