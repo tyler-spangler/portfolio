@@ -3,8 +3,8 @@ Tests for the bgg_analysis files
 """
 from api_call import build_url, execute_api_call
 import scrape_game_ids
-import sys
 import pandas as pd
+import requests
 
 
 def test_build_url():
@@ -16,7 +16,7 @@ def test_build_url():
     )
     actual_url = build_url(2, test_df)
     print(actual_url)
-    expected_url = "https://api.geekdo.com/xmlapi/boardgame/1, 2"
+    expected_url = "https://api.geekdo.com/xmlapi/boardgame/1,2?comments=1"
     assert actual_url == expected_url
     assert isinstance(actual_url, str)
 
@@ -47,9 +47,9 @@ def test_api_call_failed(requests_mock):
 
     """
     test_url = "https://fake_api.com"
-    requests_mock.get(test_url, status_code=404, text=None)
+    requests_mock.get(test_url, exc=requests.exceptions.RequestException)
     actual = execute_api_call(test_url)
-    assert actual == 404
+    assert actual is None
 
 
 def test_get_title_id():

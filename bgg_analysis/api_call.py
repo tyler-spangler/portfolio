@@ -1,7 +1,7 @@
 """
 Module will build and execute the API call
 """
-
+import sqlite3 as sql
 import pandas as pd
 import requests
 import xmltodict
@@ -25,16 +25,15 @@ def build_url(n_games: int, games_df: pd.DataFrame) -> str:
     """
     url_end = ""
     games_appended = 0
-    for _, row in games_df.iterrows():
-        if games_appended == n_games:
-            return f"https://api.geekdo.com/xmlapi/boardgame/{url_end}"
-
+    for game_id in games_df["game_id"][:n_games].tolist():
         if games_appended == 0:
-            url_end += f"{row['game_id']}"
+            url_end += f"{game_id}"
         else:
-            url_end += f", {row['game_id']}"
+            url_end += f",{game_id}"
 
         games_appended += 1
+
+    return f"https://api.geekdo.com/xmlapi/boardgame/{url_end}?comments=1"
 
 
 def execute_api_call(api_url: str) -> dict:
@@ -48,7 +47,61 @@ def execute_api_call(api_url: str) -> dict:
     dict
         Dictionary of the xml response
     """
-    response = requests.get(api_url, timeout=5)
-    if response.status_code == 200:
+
+    try:
+        response = requests.get(api_url, timeout=10)
         return xmltodict.parse(response.content)
-    return response.status_code
+    except requests.exceptions.RequestException as req_error:
+        print(req_error)
+        return None
+
+
+game_dictionary = {
+    "game_id": [],
+    "name": [],
+    "min_players": [],
+    "max_players": [],
+    "min_playtime": [],
+    "max_playtime": [],
+    "age": [],
+    "description": [],
+    "year_published": [],
+}
+
+
+def parse_boardgame_data(boardgame_dictionary: dict, xml_dict: dict) -> dict:
+    """
+    Parse the returned xml into the board game table to load into the database
+    Parameters
+    ----------
+    boardgame_dictionary: dict
+        Dictionary to load the items into
+    xml_dict: dict
+        Dictionary of xml returned from the API
+    Return
+    ------
+    dict
+        The boardgame dictionary populated from the api data
+    """
+    for game in xml_dict["boardgames"]["boardgame"]:
+        # find the values and them to the dictionary
+        boardgame_dictionary["game_id"].append(game["@objectid"])
+        if isinstance(game["name"], list):
+            for each_name in game["name"]:
+                if "@primary" in list(each_name.keys()):
+                    boardgame_dictionary["name"].append(each_name["#text"])
+        else:
+            boardgame_dictionary["name"].append(game["name"]["#text"])
+        boardgame_dictionary["year_published"].append(game["yearpublished"])
+        boardgame_dictionary["min_players"].append(game["minplayers"])
+        boardgame_dictionary["max_players"].append(game["maxplayers"])
+        boardgame_dictionary["min_playtime"].append(game["minplaytime"])
+        boardgame_dictionary["max_playtime"].append(game["maxplaytime"])
+        boardgame_dictionary["age"].append(game["age"])
+        boardgame_dictionary["description"].append(game["description"])
+    return boardgame_dictionary
+
+
+# api_url = build_url(10, game_df)
+# val = execute_api_call(api_url=api_url)
+# x = parse_boardgame_data(game_dictionary, val)
