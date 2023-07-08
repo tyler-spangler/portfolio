@@ -104,7 +104,3 @@ def reset_table(table_name: str):
     database_cursor.execute(f"DELETE FROM {table_name}")
     database_conn.commit()
     database_conn.close()
-
-
-reset_table("mechanic")
-reset_table("mechanic_game")
