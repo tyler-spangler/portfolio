@@ -100,7 +100,30 @@ def parse_boardgame_data(xml_dict: dict) -> dict:
     return boardgame_dictionary
 
 
-# api_url = build_url(500, game_df)
-# val = execute_api_call(api_url=api_url)
-# # x = parse_boardgame_data(game_dictionary, val)
-# print(len(x["year_published"]))
+def parse_mechanic_data(xml_dict: dict) -> dict:
+    """
+    Parses the xml data to pull out data regarding the game mechanics
+    Parameters
+    ----------
+    xml_dict:
+        Return value from calling the api
+    Returns
+    ---------
+    dict
+        Dictionary of parsed xml with game_id, mechanic id, and mechanic name
+    """
+    mechanic_data_dictionary = {"game_id": [], "id": [], "name": []}
+    for game in xml_dict["boardgames"]["boardgame"]:
+        game_id = game["@objectid"]
+        if isinstance(game["boardgamemechanic"], list):
+            for mechanic_dict in game["boardgamemechanic"]:
+                mechanic_data_dictionary["game_id"].append(game_id)
+                mechanic_data_dictionary["id"].append(mechanic_dict["@objectid"])
+                mechanic_data_dictionary["name"].append(mechanic_dict["#text"])
+        else:
+            mechanic_data_dictionary["game_id"].append(game_id)
+            mechanic_data_dictionary["id"].append(
+                game["boardgamemechanic"]["@objectid"]
+            )
+            mechanic_data_dictionary["name"].append(game["boardgamemechanic"]["#text"])
+    return mechanic_data_dictionary

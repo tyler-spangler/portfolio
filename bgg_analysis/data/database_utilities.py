@@ -90,3 +90,21 @@ def read_yaml(filepath: str) -> dict:
     with open(filepath, "r", encoding="utf-8") as file:
         config = yaml.safe_load(file)
     return config
+
+
+def reset_table(table_name: str):
+    """
+    resets table by deleting all the rows
+    """
+    database_path = read_yaml("bgg_analysis/data/database_configuration.yaml")[
+        "bgg_database"
+    ]["url"]
+    database_conn = sql.connect(database_path)
+    database_cursor = database_conn.cursor()
+    database_cursor.execute(f"DELETE FROM {table_name}")
+    database_conn.commit()
+    database_conn.close()
+
+
+reset_table("mechanic")
+reset_table("mechanic_game")
