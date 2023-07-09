@@ -1,10 +1,10 @@
 """
 Tests for the bgg_analysis files
 """
-from api_call import build_url, execute_api_call
-import scrape_game_ids
 import pandas as pd
 import requests
+from bgg_analysis.api_call import build_url, execute_api_call
+from bgg_analysis.scrape_game_ids import get_game_urls, get_title_id
 
 
 def test_build_url():
@@ -61,7 +61,7 @@ def test_get_title_id():
         "/boardgame/ID2/name2",
         "/boardgame/ID3/name3",
     ]
-    actual = scrape_game_ids.get_title_id(test_list)
+    actual = get_title_id(test_list)
     expected = pd.DataFrame(
         {"game_title": ["name1", "name2", "name3"], "game_id": ["ID1", "ID2", "ID3"]}
     )
@@ -69,9 +69,12 @@ def test_get_title_id():
 
 
 def test_get_url(requests_mock):
+    """
+    Tests the function under successful conditions
+    """
     test_url = "https://fake_url.com"
     test_text = "<a href='/boardgame/224517/brass-birmingham' class='primary'>Brass: Birmingham</a>"
     requests_mock.get(test_url, text=test_text)
-    actual = scrape_game_ids.get_game_urls(test_url)
+    actual = get_game_urls(test_url)
     expected = {"/boardgame/224517/brass-birmingham"}
     assert actual == expected
