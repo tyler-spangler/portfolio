@@ -61,4 +61,4 @@ for temp_url in scrape_url_list:
 game_url_list = [game_url for set_list in temp_list for game_url in set_list]
 game_id_df = get_title_id(game_urls=game_url_list)
 
-game_id_df.to_csv("game_title_id.csv")
+# game_id_df.to_csv("game_title_id.csv")
