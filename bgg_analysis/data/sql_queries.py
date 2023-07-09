@@ -11,7 +11,7 @@ DATABASE_URL = read_yaml("bgg_analysis/data/database_configuration.yaml")[
 
 
 def execute_query(
-    engine, query, params: dict = None
+    engine: sqlalchemy.engine.base.Engine, query: str, params: dict = None
 ) -> sqlalchemy.engine.cursor.CursorResult:
     """
     executes query without any parameters
